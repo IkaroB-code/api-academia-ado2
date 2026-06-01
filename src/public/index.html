@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academia — Painel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+<!-- ── AUTH SCREEN ── -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <h1>GYM</h1>
+    <p>Sistema de gerenciamento de academia</p>
+ 
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab-btn" onclick="switchTab('register')">Cadastrar</button>
+    </div>
+ 
+    <!-- Login -->
+    <div id="tab-login">
+      <label>E-mail</label>
+      <input type="email" id="login-email" placeholder="seu@email.com">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••">
+      <div id="login-error" class="error-msg" style="display:none"></div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Entrar</button>
+    </div>
+ 
+    <!-- Register -->
+    <div id="tab-register" style="display:none">
+      <label>Nome</label>
+      <input type="text" id="reg-nome" placeholder="Seu nome">
+      <label>E-mail</label>
+      <input type="email" id="reg-email" placeholder="seu@email.com">
+      <label>Senha</label>
+      <input type="password" id="reg-pass" placeholder="••••••••">
+      <div id="reg-error" class="error-msg" style="display:none"></div>
+      <div id="reg-success" class="success-msg" style="display:none">Cadastro realizado! Faça login.</div>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Criar conta</button>
+    </div>
+ 
+    <p style="margin-top:1rem;font-size:.78rem;color:var(--muted);text-align:center">
+      API em: <span id="api-url-display" style="color:var(--accent)">http://localhost:3000</span>
+      &nbsp;<button class="btn btn-ghost btn-sm" onclick="changeApiUrl()" style="padding:.2rem .5rem;font-size:.72rem">alterar</button>
+    </p>
+  </div>
+</div>
+ 
+<!-- ── APP ── -->
+<div id="app">
+  <header>
+    <h1>GYM PANEL</h1>
+    <div class="user-info">
+      <span id="header-user">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
+    </div>
+  </header>
+ 
+  <nav>
+    <button class="active" onclick="showSection('alunos')">Alunos</button>
+    <button onclick="showSection('instrutores')">Instrutores</button>
+    <button onclick="showSection('planos')">Planos de Treino</button>
+    <button onclick="showSection('fichas')">Fichas</button>
+  </nav>
+ 
+  <main>
+ 
+    <!-- ALUNOS -->
+    <div id="sec-alunos" class="section active">
+      <div class="section-header">
+        <h2>Alunos</h2>
+        <button class="btn btn-primary btn-sm" onclick="toggleForm('form-aluno')">+ Novo Aluno</button>
+      </div>
+      <div id="form-aluno" class="form-panel" style="display:none">
+        <h3>Novo Aluno</h3>
+        <div class="form-row">
+          <div><label>Nome</label><input type="text" id="a-nome" placeholder="Nome completo"></div>
+          <div><label>E-mail</label><input type="email" id="a-email" placeholder="email@exemplo.com"></div>
+        </div>
+        <label>Senha</label>
+        <input type="password" id="a-senha" placeholder="••••••••" style="max-width:280px">
+        <button class="btn btn-primary" onclick="criarAluno()">Salvar</button>
+      </div>
+      <div id="list-alunos" class="cards"><div class="empty">Carregando...</div></div>
+    </div>
+ 
+    <!-- INSTRUTORES -->
+    <div id="sec-instrutores" class="section">
+      <div class="section-header">
+        <h2>Instrutores</h2>
+        <button class="btn btn-primary btn-sm" onclick="toggleForm('form-instrutor')">+ Novo Instrutor</button>
+      </div>
+      <div id="form-instrutor" class="form-panel" style="display:none">
+        <h3>Novo Instrutor</h3>
+        <div class="form-row">
+          <div><label>Nome</label><input type="text" id="i-nome" placeholder="Nome completo"></div>
+          <div><label>E-mail</label><input type="email" id="i-email" placeholder="email@exemplo.com"></div>
+        </div>
+        <button class="btn btn-primary" onclick="criarInstrutor()">Salvar</button>
+      </div>
+      <div id="list-instrutores" class="cards"><div class="empty">Carregando...</div></div>
+    </div>
+ 
+    <!-- PLANOS -->
+    <div id="sec-planos" class="section">
+      <div class="section-header">
+        <h2>Planos de Treino</h2>
+        <button class="btn btn-primary btn-sm" onclick="toggleForm('form-plano')">+ Novo Plano</button>
+      </div>
+      <div id="form-plano" class="form-panel" style="display:none">
+        <h3>Novo Plano</h3>
+        <div class="form-row">
+          <div><label>Título</label><input type="text" id="p-titulo" placeholder="Ex: Hipertrofia A"></div>
+          <div>
+            <label>Aluno</label>
+            <select id="p-aluno"><option value="">— selecione —</option></select>
+          </div>
+        </div>
+        <label>Descrição</label>
+        <textarea id="p-desc" placeholder="Descreva o plano..."></textarea>
+        <button class="btn btn-primary" onclick="criarPlano()">Salvar</button>
+      </div>
+      <div id="list-planos" class="cards"><div class="empty">Carregando...</div></div>
+    </div>
+ 
+    <!-- FICHAS -->
+    <div id="sec-fichas" class="section">
+      <div class="section-header">
+        <h2>Fichas de Exercício</h2>
+        <button class="btn btn-primary btn-sm" onclick="toggleForm('form-ficha')">+ Nova Ficha</button>
+      </div>
+      <div id="form-ficha" class="form-panel" style="display:none">
+        <h3>Nova Ficha</h3>
+        <div class="form-row">
+          <div><label>Exercício</label><input type="text" id="f-exercicio" placeholder="Ex: Supino Reto"></div>
+          <div>
+            <label>Plano</label>
+            <select id="f-plano"><option value="">— selecione —</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div><label>Séries</label><input type="number" id="f-series" placeholder="3" min="1"></div>
+          <div><label>Repetições</label><input type="number" id="f-reps" placeholder="10" min="1"></div>
+          <div>
+            <label>Instrutor</label>
+            <select id="f-instrutor"><option value="">— selecione —</option></select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="criarFicha()">Salvar</button>
+      </div>
+      <div id="list-fichas" class="cards"><div class="empty">Carregando...</div></div>
+    </div>
+ 
+  </main>
+</div>
+ 
+<div id="toast" class="toast"></div>
+ 
+<script>
+  let API = localStorage.getItem('gym_api') || 'http://localhost:3000';
+  let TOKEN = localStorage.getItem('gym_token') || '';
+  document.getElementById('api-url-display').textContent = API;
+ 
+  // ── UTILS ──
+  function toast(msg, err = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (err ? ' error' : '');
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+ 
+  async function api(method, path, body) {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json', ...(TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {}) }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(API + path, opts);
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || 'Erro ' + r.status);
+    return data;
+  }
+ 
+  function changeApiUrl() {
+    const url = prompt('URL da API:', API);
+    if (url) {
+      API = url.replace(/\/$/, '');
+      localStorage.setItem('gym_api', API);
+      document.getElementById('api-url-display').textContent = API;
+    }
+  }
+ 
+  // ── AUTH ──
+  function switchTab(tab) {
+    document.getElementById('tab-login').style.display = tab === 'login' ? '' : 'none';
+    document.getElementById('tab-register').style.display = tab === 'register' ? '' : 'none';
+    document.querySelectorAll('.tab-btn').forEach((b, i) =>
+      b.classList.toggle('active', (i === 0) === (tab === 'login'))
+    );
+  }
+ 
+  async function doLogin() {
+    const email = document.getElementById('login-email').value;
+    const senha = document.getElementById('login-pass').value;
+    const err = document.getElementById('login-error');
+    err.style.display = 'none';
+    try {
+      const d = await api('POST', '/auth/login', { email, senha });
+      TOKEN = d.token;
+      localStorage.setItem('gym_token', TOKEN);
+      document.getElementById('header-user').textContent = email;
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      loadAll();
+    } catch (e) {
+      err.textContent = e.message;
+      err.style.display = 'block';
+    }
+  }
+ 
+  async function doRegister() {
+    const nome = document.getElementById('reg-nome').value;
+    const email = document.getElementById('reg-email').value;
+    const senha = document.getElementById('reg-pass').value;
+    const err = document.getElementById('reg-error');
+    const ok = document.getElementById('reg-success');
+    err.style.display = 'none'; ok.style.display = 'none';
+    try {
+      await api('POST', '/auth/register', { nome, email, senha });
+      ok.style.display = 'block';
+    } catch (e) {
+      err.textContent = e.message;
+      err.style.display = 'block';
+    }
+  }
+ 
+  function logout() {
+    TOKEN = '';
+    localStorage.removeItem('gym_token');
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+ 
+  // ── NAV ──
+  function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    document.querySelectorAll('nav button').forEach((b, i) => {
+      const map = ['alunos', 'instrutores', 'planos', 'fichas'];
+      b.classList.toggle('active', map[i] === name);
+    });
+    if (name === 'planos') loadSelectAlunos();
+    if (name === 'fichas') { loadSelectPlanos(); loadSelectInstrutores(); }
+  }
+ 
+  function toggleForm(id) {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? '' : 'none';
+  }
+ 
+  // ── LOAD ALL ──
+  function loadAll() {
+    loadAlunos();
+    loadInstrutores();
+    loadPlanos();
+    loadFichas();
+  }
+ 
+  // ── ALUNOS ──
+  async function loadAlunos() {
+    const el = document.getElementById('list-alunos');
+    el.innerHTML = '<div class="empty"><span class="loading"></span></div>';
+    try {
+      const data = await api('GET', '/alunos');
+      el.innerHTML = data.length ? data.map(a => `
+        <div class="card">
+          <div class="card-title">${esc(a.nome)}</div>
+          <div class="card-sub">${esc(a.email)}</div>
+          <div class="card-actions">
+            <button class="btn btn-danger btn-sm" onclick="deletar('aluno',${a.id})">Excluir</button>
+          </div>
+        </div>`).join('') : '<div class="empty">Nenhum aluno cadastrado.</div>';
+    } catch (e) { el.innerHTML = `<div class="empty" style="color:var(--accent2)">${e.message}</div>`; }
+  }
+ 
+  async function criarAluno() {
+    const nome = document.getElementById('a-nome').value;
+    const email = document.getElementById('a-email').value;
+    const senha = document.getElementById('a-senha').value;
+    try {
+      await api('POST', '/alunos', { nome, email, senha });
+      toast('Aluno criado!');
+      toggleForm('form-aluno');
+      loadAlunos();
+    } catch (e) { toast(e.message, true); }
+  }
+ 
+  // ── INSTRUTORES ──
+  async function loadInstrutores() {
+    const el = document.getElementById('list-instrutores');
+    el.innerHTML = '<div class="empty"><span class="loading"></span></div>';
+    try {
+      const data = await api('GET', '/instrutores');
+      el.innerHTML = data.length ? data.map(i => `
+        <div class="card">
+          <div class="card-title">${esc(i.nome)}</div>
+          <div class="card-sub">${esc(i.email)}</div>
+          <div class="card-actions">
+            <button class="btn btn-danger btn-sm" onclick="deletar('instrutor',${i.id})">Excluir</button>
+          </div>
+        </div>`).join('') : '<div class="empty">Nenhum instrutor cadastrado.</div>';
+    } catch (e) { el.innerHTML = `<div class="empty" style="color:var(--accent2)">${e.message}</div>`; }
+  }
+ 
+  async function criarInstrutor() {
+    const nome = document.getElementById('i-nome').value;
+    const email = document.getElementById('i-email').value;
+    try {
+      await api('POST', '/instrutores', { nome, email });
+      toast('Instrutor criado!');
+      toggleForm('form-instrutor');
+      loadInstrutores();
+    } catch (e) { toast(e.message, true); }
+  }
+ 
+  // ── PLANOS ──
+  async function loadPlanos() {
+    const el = document.getElementById('list-planos');
+    el.innerHTML = '<div class="empty"><span class="loading"></span></div>';
+    try {
+      const data = await api('GET', '/planos');
+      el.innerHTML = data.length ? data.map(p => `
+        <div class="card">
+          <div class="card-title">${esc(p.titulo)}</div>
+          <div class="card-sub">${esc(p.descricao || '—')}</div>
+          <div style="margin-bottom:.8rem"><span class="badge">Aluno #${p.alunoId}</span></div>
+          <div class="card-actions">
+            <button class="btn btn-danger btn-sm" onclick="deletar('plano',${p.id})">Excluir</button>
+          </div>
+        </div>`).join('') : '<div class="empty">Nenhum plano cadastrado.</div>';
+    } catch (e) { el.innerHTML = `<div class="empty" style="color:var(--accent2)">${e.message}</div>`; }
+  }
+ 
+  async function loadSelectAlunos() {
+    const sel = document.getElementById('p-aluno');
+    sel.innerHTML = '<option value="">— selecione —</option>';
+    try {
+      const data = await api('GET', '/alunos');
+      data.forEach(a => sel.innerHTML += `<option value="${a.id}">${esc(a.nome)}</option>`);
+    } catch {}
+  }
+ 
+  async function criarPlano() {
+    const titulo = document.getElementById('p-titulo').value;
+    const descricao = document.getElementById('p-desc').value;
+    const alunoId = Number(document.getElementById('p-aluno').value);
+    if (!alunoId) return toast('Selecione um aluno.', true);
+    try {
+      await api('POST', '/planos', { titulo, descricao, alunoId });
+      toast('Plano criado!');
+      toggleForm('form-plano');
+      loadPlanos();
+    } catch (e) { toast(e.message, true); }
+  }
+ 
+  // ── FICHAS ──
+  async function loadFichas() {
+    const el = document.getElementById('list-fichas');
+    el.innerHTML = '<div class="empty"><span class="loading"></span></div>';
+    try {
+      const data = await api('GET', '/fichas');
+      el.innerHTML = data.length ? data.map(f => `
+        <div class="card">
+          <div class="card-title">${esc(f.exercicio)}</div>
+          <div class="card-sub">${f.series} séries × ${f.repeticoes} reps</div>
+          <div style="margin-bottom:.8rem; display:flex; gap:.4rem; flex-wrap:wrap">
+            <span class="badge">Plano #${f.planoId}</span>
+            <span class="badge" style="background:#0d1a2a;color:#4eb3f5;border-color:#1a4a6a">Instrutor #${f.instrutorId}</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-danger btn-sm" onclick="deletar('ficha',${f.id})">Excluir</button>
+          </div>
+        </div>`).join('') : '<div class="empty">Nenhuma ficha cadastrada.</div>';
+    } catch (e) { el.innerHTML = `<div class="empty" style="color:var(--accent2)">${e.message}</div>`; }
+  }
+ 
+  async function loadSelectPlanos() {
+    const sel = document.getElementById('f-plano');
+    sel.innerHTML = '<option value="">— selecione —</option>';
+    try {
+      const data = await api('GET', '/planos');
+      data.forEach(p => sel.innerHTML += `<option value="${p.id}">${esc(p.titulo)}</option>`);
+    } catch {}
+  }
+ 
+  async function loadSelectInstrutores() {
+    const sel = document.getElementById('f-instrutor');
+    sel.innerHTML = '<option value="">— selecione —</option>';
+    try {
+      const data = await api('GET', '/instrutores');
+      data.forEach(i => sel.innerHTML += `<option value="${i.id}">${esc(i.nome)}</option>`);
+    } catch {}
+  }
+ 
+  async function criarFicha() {
+    const exercicio = document.getElementById('f-exercicio').value;
+    const series = Number(document.getElementById('f-series').value);
+    const repeticoes = Number(document.getElementById('f-reps').value);
+    const planoId = Number(document.getElementById('f-plano').value);
+    const instrutorId = Number(document.getElementById('f-instrutor').value);
+    if (!planoId || !instrutorId) return toast('Preencha plano e instrutor.', true);
+    try {
+      await api('POST', '/fichas', { exercicio, series, repeticoes, planoId, instrutorId });
+      toast('Ficha criada!');
+      toggleForm('form-ficha');
+      loadFichas();
+    } catch (e) { toast(e.message, true); }
+  }
+ 
+  // ── DELETE ──
+  const endpointMap = { aluno: '/alunos', instrutor: '/instrutores', plano: '/planos', ficha: '/fichas' };
+  const reloadMap = { aluno: loadAll, instrutor: loadInstrutores, plano: loadPlanos, ficha: loadFichas };
+ 
+  async function deletar(tipo, id) {
+    if (!confirm(`Excluir este ${tipo}?`)) return;
+    try {
+      await api('DELETE', endpointMap[tipo] + '/' + id);
+      toast(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)} excluído!`);
+      reloadMap[tipo]();
+    } catch (e) { toast(e.message, true); }
+  }
+ 
+  // ── HELPERS ──
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+ 
+  // Auto-login se já tiver token
+  if (TOKEN) {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    loadAll();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Aluno {
+  id     Int           @id @default(autoincrement())
+  nome   String
+  email  String        @unique
+  senha  String
+  planos PlanoTreino[]
+}
+
+model Instrutor {
+  id     Int     @id @default(autoincrement())
+  nome   String
+  email  String  @unique
+  fichas Ficha[]
+}
+
+model PlanoTreino {
+  id        Int     @id @default(autoincrement())
+  titulo    String
+  descricao String
+  alunoId   Int
+  fichas    Ficha[]
+  aluno     Aluno   @relation(fields: [alunoId], references: [id])
+
+  @@index([alunoId], map: "PlanoTreino_alunoId_fkey")
+}
+
+model Ficha {
+  id          Int         @id @default(autoincrement())
+  exercicio   String
+  series      Int
+  repeticoes  Int
+  instrutorId Int
+  planoId     Int
+  instrutor   Instrutor   @relation(fields: [instrutorId], references: [id])
+  plano       PlanoTreino @relation(fields: [planoId], references: [id])
+
+  @@index([instrutorId], map: "Ficha_instrutorId_fkey")
+  @@index([planoId], map: "Ficha_planoId_fkey")
+}
