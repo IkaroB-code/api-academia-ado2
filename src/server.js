@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 });
 
 
-// Rotas
+// rotas
 app.use("/auth", authRoutes);
 app.use("/alunos", alunoRoutes);
 app.use("/planos", planoRoutes);
