@@ -4,10 +4,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-
+generator client {
+  provider = "prisma-client-js"
+}
 
 model Aluno {
   id     Int           @id @default(autoincrement())
