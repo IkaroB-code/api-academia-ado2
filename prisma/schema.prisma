@@ -3,8 +3,10 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
 }
+
+
 
 model Aluno {
   id     Int           @id @default(autoincrement())
@@ -27,7 +29,7 @@ model PlanoTreino {
   descricao String
   alunoId   Int
   fichas    Ficha[]
-  aluno     Aluno   @relation(fields: [alunoId], references: [id])
+  aluno     Aluno   @relation(fields: [alunoId], references: [id], map: "FK_PlanoTreino_Aluno")
 
   @@index([alunoId], map: "PlanoTreino_alunoId_fkey")
 }
@@ -39,8 +41,8 @@ model Ficha {
   repeticoes  Int
   instrutorId Int
   planoId     Int
-  instrutor   Instrutor   @relation(fields: [instrutorId], references: [id])
-  plano       PlanoTreino @relation(fields: [planoId], references: [id])
+  instrutor   Instrutor   @relation(fields: [instrutorId], references: [id], map: "FK_Ficha_Instrutor")
+  plano       PlanoTreino @relation(fields: [planoId], references: [id], map: "FK_Ficha_Plano")
 
   @@index([instrutorId], map: "Ficha_instrutorId_fkey")
   @@index([planoId], map: "Ficha_planoId_fkey")
